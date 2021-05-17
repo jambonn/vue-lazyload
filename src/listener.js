@@ -131,8 +131,7 @@ export default class ReactiveListener {
         src: this.loading,
         cors: this.cors,
       },
-      // eslint-disable-next-line
-      data => {
+      () => {
         this.render('loading', false)
         this.state.loading = false
         cb()

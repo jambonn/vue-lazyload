@@ -15,9 +15,7 @@ const LazyImage = lazyManager => {
       return h(
         this.tag,
         {
-          attrs: {
-            src: this.renderSrc,
-          },
+          src: this.renderSrc,
         },
         this.$slots.default(),
       )

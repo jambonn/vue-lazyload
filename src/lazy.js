@@ -128,10 +128,9 @@ export default function Lazy() {
      * add image listener to queue
      * @param  {DOM} el
      * @param  {object} binding vue directive binding
-     * @param  {vnode} vnode vue directive vnode
      * @return
      */
-    add(el, binding, vnode) {
+    add(el, binding) {
       if (some(this.ListenerQueue, item => item.el === el)) {
         this.update(el, binding)
         return nextTick(this.lazyLoadHandler)
@@ -147,7 +146,7 @@ export default function Lazy() {
         let $parent
 
         if (container) {
-          $parent = vnode.context.$refs[container]
+          $parent = binding.instance.$refs[container]
           // if there is container passed in, try ref first, then fallback to getElementById to support the original usage
           $parent = $parent
             ? $parent.$el || $parent
@@ -187,15 +186,14 @@ export default function Lazy() {
      * update image src
      * @param el
      * @param binding
-     * @param vnode
      */
-    update(el, binding, vnode) {
+    update(el, binding) {
       let { src, loading, error } = this._valueFormatter(binding.value)
       src = getBestSelectionFromSrcset(el, this.options.scale) || src
 
       const exist = find(this.ListenerQueue, item => item.el === el)
       if (!exist) {
-        this.add(el, binding, vnode)
+        this.add(el, binding)
       } else {
         exist.update({
           src,
@@ -223,7 +221,7 @@ export default function Lazy() {
         this._removeListenerTarget(existItem.$parent)
         this._removeListenerTarget(window)
         remove(this.ListenerQueue, existItem)
-        existItem.$destroy()
+        existItem.$destroy && existItem.$destroy()
       }
     }
 
@@ -370,16 +368,16 @@ export default function Lazy() {
     _lazyLoadHandler() {
       const freeList = []
       this.ListenerQueue.forEach(listener => {
-        if (!listener.el || !listener.el.parentNode) {
+        if (!listener.el || !listener.el.parentNode || listener.state.loaded) {
           freeList.push(listener)
         }
         const catIn = listener.checkInView()
         if (!catIn) return
-        listener.load()
+        if (!listener.state.loaded) listener.load()
       })
       freeList.forEach(item => {
         remove(this.ListenerQueue, item)
-        item.$destroy()
+        item.$destroy && item.$destroy()
       })
     }
     /**

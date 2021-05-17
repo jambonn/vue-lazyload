@@ -13,10 +13,10 @@ export default class LazyContainerMananger {
     this._queue.push(container)
   }
 
-  update(el, binding, vnode) {
+  update(el, binding) {
     const container = find(this._queue, item => item.el === el)
     if (!container) return
-    container.update({ el, binding, vnode })
+    container.update({ el, binding })
   }
 
   unbind(el) {
