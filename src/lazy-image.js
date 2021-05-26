@@ -17,7 +17,7 @@ const LazyImage = lazyManager => {
         {
           src: this.renderSrc,
         },
-        this.$slots.default(),
+        this.$slots.default ? this.$slots.default() : null,
       )
     },
     data() {
