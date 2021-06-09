@@ -3,15 +3,12 @@ import {
   inBrowser,
   CustomEvent,
   remove,
-  some,
-  find,
   _,
   throttle,
   supportWebp,
   getDPR,
   scrollParent,
   getBestSelectionFromSrcset,
-  assign,
   isObject,
   hasIntersectionObserver,
   modeType,
@@ -59,7 +56,7 @@ export default function Lazy() {
       this.TargetIndex = 0
       this.TargetQueue = []
       this.options = {
-        silent: silent,
+        silent,
         dispatchEvent: !!dispatchEvent,
         throttleWait: throttleWait || 200,
         preLoad: preLoad || 1.3,
@@ -91,7 +88,7 @@ export default function Lazy() {
      * @param options
      */
     config(options = {}) {
-      assign(this.options, options)
+      Object.assign(this.options, options)
     }
 
     /**
@@ -99,13 +96,7 @@ export default function Lazy() {
      * @return {Array}
      */
     performance() {
-      let list = []
-
-      this.ListenerQueue.map(item => {
-        list.push(item.performance())
-      })
-
-      return list
+      return this.ListenerQueue.map(item => item.performance())
     }
 
     /*
@@ -131,12 +122,14 @@ export default function Lazy() {
      * @return
      */
     add(el, binding) {
-      if (some(this.ListenerQueue, item => item.el === el)) {
+      if (this.ListenerQueue.some(item => item.el === el)) {
         this.update(el, binding)
-        return nextTick(this.lazyLoadHandler)
+        nextTick(() => this.lazyLoadHandler())
+        return
       }
 
-      let { src, loading, error, cors } = this._valueFormatter(binding.value)
+      const value = this._valueFormatter(binding.value)
+      let { src } = value
 
       nextTick(() => {
         src = getBestSelectionFromSrcset(el, this.options.scale) || src
@@ -161,10 +154,10 @@ export default function Lazy() {
           bindType: binding.arg,
           $parent,
           el,
-          loading,
-          error,
           src,
-          cors,
+          loading: value.loading,
+          error: value.error,
+          cors: value.cors,
           elRenderer: this._elRenderer.bind(this),
           options: this.options,
           imageCache: this._imageCache,
@@ -188,23 +181,25 @@ export default function Lazy() {
      * @param binding
      */
     update(el, binding) {
-      let { src, loading, error } = this._valueFormatter(binding.value)
+      const value = this._valueFormatter(binding.value)
+      let { src } = value
       src = getBestSelectionFromSrcset(el, this.options.scale) || src
 
-      const exist = find(this.ListenerQueue, item => item.el === el)
+      const exist = this.ListenerQueue.find(item => item.el === el)
       if (!exist) {
         this.add(el, binding)
       } else {
         exist.update({
           src,
-          loading,
-          error,
+          error: value.error,
+          loading: value.loading,
         })
       }
       if (this._observer) {
         this._observer.unobserve(el)
         this._observer.observe(el)
       }
+
       this.lazyLoadHandler()
       nextTick(() => this.lazyLoadHandler())
     }
@@ -216,7 +211,7 @@ export default function Lazy() {
     remove(el) {
       if (!el) return
       this._observer && this._observer.unobserve(el)
-      const existItem = find(this.ListenerQueue, item => item.el === el)
+      const existItem = this.ListenerQueue.find(item => item.el === el)
       if (existItem) {
         this._removeListenerTarget(existItem.$parent)
         this._removeListenerTarget(window)
@@ -277,7 +272,7 @@ export default function Lazy() {
      */
     _addListenerTarget(el) {
       if (!el) return
-      let target = find(this.TargetQueue, target => target.el === el)
+      let target = this.TargetQueue.find(target => target.el === el)
       if (!target) {
         target = {
           el: el,
@@ -338,10 +333,9 @@ export default function Lazy() {
       }
 
       this.$once = (event, func) => {
-        const vm = this
-        function on() {
-          vm.$off(event, on)
-          func.apply(vm, arguments)
+        const on = (...args) => {
+          this.$off(event, on)
+          func.apply(this, args)
         }
         this.$on(event, on)
       }
@@ -368,12 +362,12 @@ export default function Lazy() {
     _lazyLoadHandler() {
       const freeList = []
       this.ListenerQueue.forEach(listener => {
-        if (!listener.el || !listener.el.parentNode || listener.state.loaded) {
+        if (!listener.el || !listener.el.parentNode) {
           freeList.push(listener)
         }
         const catIn = listener.checkInView()
         if (!catIn) return
-        if (!listener.state.loaded) listener.load()
+        listener.load()
       })
       freeList.forEach(item => {
         remove(this.ListenerQueue, item)
@@ -386,7 +380,10 @@ export default function Lazy() {
      * @return
      */
     _initIntersectionObserver() {
-      if (!hasIntersectionObserver) return
+      if (!hasIntersectionObserver) {
+        return
+      }
+
       this._observer = new IntersectionObserver(
         this._observerHandler.bind(this),
         this.options.observerOptions,
@@ -468,8 +465,7 @@ export default function Lazy() {
      */
     _valueFormatter(value) {
       let src = value
-      let loading = this.options.loading
-      let error = this.options.error
+      let { loading, error } = this.options
 
       // value is object
       if (isObject(value)) {
@@ -489,12 +485,11 @@ export default function Lazy() {
 }
 
 Lazy.install = (app, options = {}) => {
-  const LazyClass = Lazy(app)
+  const LazyClass = Lazy()
   const lazy = new LazyClass(options)
 
   app.directive('lazy', {
     beforeMount: lazy.add.bind(lazy),
-    beforeUpdate: lazy.update.bind(lazy),
     updated: lazy.lazyLoadHandler.bind(lazy),
     unmounted: lazy.remove.bind(lazy),
   })

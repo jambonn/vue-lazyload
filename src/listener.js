@@ -1,4 +1,4 @@
-import { loadImageAsync, ObjectKeys, noop } from './util.js'
+import { loadImageAsync, noop } from './util.js'
 
 export default class ReactiveListener {
   constructor({
@@ -114,7 +114,7 @@ export default class ReactiveListener {
    * listener filter
    */
   filter() {
-    ObjectKeys(this.options.filter).map(key => {
+    Object.keys(this.options.filter).map(key => {
       this.options.filter[key](this, this.options)
     })
   }

@@ -1,8 +1,7 @@
 import { h } from 'vue'
 import { inBrowser, loadImageAsync, noop } from './util'
-import Lazy from './lazy'
 
-const LazyImage = lazyManager => {
+export default lazyManager => {
   return {
     props: {
       src: [String, Object],
@@ -105,11 +104,3 @@ const LazyImage = lazyManager => {
     },
   }
 }
-
-LazyImage.install = (app, options = {}) => {
-  const LazyClass = Lazy(app)
-  const lazy = new LazyClass(options)
-  app.component('lazy-image', LazyImage(lazy))
-}
-
-export default LazyImage

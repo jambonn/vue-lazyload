@@ -1,6 +1,6 @@
 {
   "name": "@jambonn/vue-lazyload",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Vue module for lazy-loading images in your vue 3 applications.",
   "main": "dist/vue-lazyload.cjs.js",
   "module": "dist/vue-lazyload.es.js",
@@ -10,7 +10,8 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "release": "node scripts/release.js"
   },
   "repository": {
     "type": "git",
@@ -31,13 +32,16 @@
   "dependencies": {},
   "devDependencies": {
     "@vue/eslint-config-prettier": "^6.0.0",
-    "assign-deep": "^1.0.1",
+    "chalk": "^4.1.1",
     "eslint": "^7.24.0",
     "eslint-loader": "^4.0.2",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.9.0",
+    "execa": "^5.1.1",
+    "minimist": "^1.2.5",
     "prettier": "^2.2.1",
+    "semver": "^7.3.5",
     "vite": "^2.1.5"
   },
   "peerDependencies": {

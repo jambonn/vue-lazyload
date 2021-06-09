@@ -1,5 +1,3 @@
-import assign from 'assign-deep'
-
 const inBrowser = typeof window !== 'undefined' && window !== null
 
 export const hasIntersectionObserver = checkIntersectionObserver()
@@ -41,7 +39,7 @@ const CustomEvent = (function () {
   if (typeof window.CustomEvent === 'function') return window.CustomEvent
   function CustomEvent(event, params) {
     params = params || { bubbles: false, cancelable: false, detail: undefined }
-    var evt = document.createEvent('CustomEvent')
+    const evt = document.createEvent('CustomEvent')
     evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail)
     return evt
   }
@@ -55,22 +53,10 @@ function remove(arr, item) {
   if (index > -1) return arr.splice(index, 1)
 }
 
-function some(arr, fn) {
-  let has = false
-  for (let i = 0, len = arr.length; i < len; i++) {
-    if (fn(arr[i])) {
-      has = true
-      break
-    }
-  }
-  return has
-}
-
 function getBestSelectionFromSrcset(el, scale) {
   if (el.tagName !== 'IMG' || !el.getAttribute('data-srcset')) return
 
   let options = el.getAttribute('data-srcset')
-  const result = []
   const container = el.parentNode
   const containerWidth = container.offsetWidth * scale
 
@@ -80,7 +66,7 @@ function getBestSelectionFromSrcset(el, scale) {
 
   options = options.trim().split(',')
 
-  options.map(item => {
+  const result = options.map(item => {
     item = item.trim()
     spaceIndex = item.lastIndexOf(' ')
     if (spaceIndex === -1) {
@@ -93,7 +79,7 @@ function getBestSelectionFromSrcset(el, scale) {
         10,
       )
     }
-    result.push([tmpWidth, tmpSrc])
+    return [tmpWidth, tmpSrc]
   })
 
   result.sort(function (a, b) {
@@ -132,17 +118,6 @@ function getBestSelectionFromSrcset(el, scale) {
   return bestSelectedSrc
 }
 
-function find(arr, fn) {
-  let item
-  for (let i = 0, len = arr.length; i < len; i++) {
-    if (fn(arr[i])) {
-      item = arr[i]
-      break
-    }
-  }
-  return item
-}
-
 const getDPR = (scale = 1) =>
   inBrowser ? window.devicePixelRatio || scale : scale
 
@@ -166,30 +141,22 @@ function supportWebp() {
 
 function throttle(action, delay) {
   let timeout = null
-  let movement = null
   let lastRun = 0
-  let needRun = false
-  return function () {
-    needRun = true
+  return function (...args) {
     if (timeout) {
       return
     }
+
     let elapsed = Date.now() - lastRun
-    let context = this
-    let args = arguments
     let runCallback = function () {
       lastRun = Date.now()
       timeout = false
-      action.apply(context, args)
+      action.apply(this, args)
     }
     if (elapsed >= delay) {
       runCallback()
     } else {
       timeout = setTimeout(runCallback, delay)
-    }
-    if (needRun) {
-      clearTimeout(movement)
-      movement = setTimeout(runCallback, 2 * delay)
     }
   }
 }
@@ -199,7 +166,7 @@ function testSupportsPassive() {
   let support = false
   try {
     let opts = Object.defineProperty({}, 'passive', {
-      // eslint-disable-next-line
+      // eslint-disable-next-line getter-return
       get: function () {
         support = true
       },
@@ -217,7 +184,7 @@ const _ = {
   on(el, type, func, capture = false) {
     if (supportsPassive) {
       el.addEventListener(type, func, {
-        capture: capture,
+        capture,
         passive: true,
       })
     } else {
@@ -297,31 +264,6 @@ function isObject(obj) {
   return obj !== null && typeof obj === 'object'
 }
 
-function ObjectKeys(obj) {
-  if (!(obj instanceof Object)) return []
-  if (Object.keys) {
-    return Object.keys(obj)
-  } else {
-    let keys = []
-    for (let key in obj) {
-      // eslint-disable-next-line
-      if (obj.hasOwnProperty(key)) {
-        keys.push(key)
-      }
-    }
-    return keys
-  }
-}
-
-function ArrayFrom(arrLike) {
-  let len = arrLike.length
-  const list = []
-  for (let i = 0; i < len; i++) {
-    list.push(arrLike[i])
-  }
-  return list
-}
-
 function noop() {}
 
 class ImageCache {
@@ -354,11 +296,7 @@ export {
   inBrowser,
   CustomEvent,
   remove,
-  some,
-  find,
-  assign,
   noop,
-  ArrayFrom,
   _,
   isObject,
   throttle,
@@ -367,5 +305,4 @@ export {
   scrollParent,
   loadImageAsync,
   getBestSelectionFromSrcset,
-  ObjectKeys,
 }

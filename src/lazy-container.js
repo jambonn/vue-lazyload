@@ -1,57 +1,28 @@
-import { find, remove, assign, ArrayFrom } from './util'
-import Lazy from './lazy'
-
-export default class LazyContainerMananger {
-  constructor({ lazy }) {
-    this.lazy = lazy
-    lazy.lazyContainerMananger = this
-    this._queue = []
-  }
-
-  bind(el, binding, vnode) {
-    const container = new LazyContainer({ el, binding, vnode, lazy: this.lazy })
-    this._queue.push(container)
-  }
-
-  update(el, binding) {
-    const container = find(this._queue, item => item.el === el)
-    if (!container) return
-    container.update({ el, binding })
-  }
-
-  unbind(el) {
-    const container = find(this._queue, item => item.el === el)
-    if (!container) return
-    container.clear()
-    remove(this._queue, container)
-  }
-}
+import { remove } from './util'
 
 const defaultOptions = {
   selector: 'img',
 }
 
 class LazyContainer {
-  constructor({ el, binding, vnode, lazy }) {
+  constructor({ el, binding, lazy }) {
     this.el = null
-    this.vnode = vnode
     this.binding = binding
     this.options = {}
     this.lazy = lazy
 
-    this._queue = []
     this.update({ el, binding })
   }
 
   update({ el, binding }) {
     this.el = el
-    this.options = assign({}, defaultOptions, binding.value)
+    this.options = Object.assign({}, defaultOptions, binding.value)
 
     const imgs = this.getImgs()
     imgs.forEach(el => {
       this.lazy.add(
         el,
-        assign({}, this.binding, {
+        Object.assign({}, this.binding, {
           value: {
             src: 'dataset' in el ? el.dataset.src : el.getAttribute('data-src'),
             error:
@@ -64,33 +35,44 @@ class LazyContainer {
                 : el.getAttribute('data-loading')) || this.options.loading,
           },
         }),
-        this.vnode,
       )
     })
   }
 
   getImgs() {
-    return ArrayFrom(this.el.querySelectorAll(this.options.selector))
+    return Array.from(this.el.querySelectorAll(this.options.selector))
   }
 
   clear() {
     const imgs = this.getImgs()
     imgs.forEach(el => this.lazy.remove(el))
 
-    this.vnode = null
     this.binding = null
     this.lazy = null
   }
 }
 
-LazyContainerMananger.install = (app, options = {}) => {
-  const LazyClass = Lazy(app)
-  const lazy = new LazyClass(options)
-  const lazyContainer = new LazyContainerMananger({ lazy })
+export default class LazyContainerMananger {
+  constructor({ lazy }) {
+    this.lazy = lazy
+    this._queue = []
+  }
 
-  app.directive('lazy-container', {
-    beforeMount: lazyContainer.bind.bind(lazyContainer),
-    updated: lazyContainer.update.bind(lazyContainer),
-    unmounted: lazyContainer.unbind.bind(lazyContainer),
-  })
+  bind(el, binding) {
+    const container = new LazyContainer({ el, binding, lazy: this.lazy })
+    this._queue.push(container)
+  }
+
+  update(el, binding) {
+    const container = this._queue.find(item => item.el === el)
+    if (!container) return
+    container.update({ el, binding })
+  }
+
+  unbind(el) {
+    const container = this._queue.find(item => item.el === el)
+    if (!container) return
+    container.clear()
+    remove(this._queue, container)
+  }
 }

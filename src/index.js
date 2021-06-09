@@ -15,7 +15,7 @@ export default {
       return new Error('Vue version at least 3.0')
     }
 
-    const LazyClass = Lazy(app)
+    const LazyClass = Lazy()
     const lazy = new LazyClass(options)
     const lazyContainer = new LazyContainer({ lazy })
 
@@ -23,17 +23,16 @@ export default {
     app.config.globalProperties.$Lazyload = lazy
 
     if (options.lazyComponent) {
-      app.component('lazy-component', LazyComponent(lazy))
+      app.component('LazyComponent', LazyComponent(lazy))
     }
 
     if (options.lazyImage) {
-      app.component('lazy-image', LazyImage(lazy))
+      app.component('LazyImage', LazyImage(lazy))
     }
 
     app.directive('lazy', {
       beforeMount: lazy.add.bind(lazy),
-      beforeUpdate: lazy.update.bind(lazy),
-      updated: lazy.lazyLoadHandler.bind(lazy),
+      updated: lazy.update.bind(lazy),
       unmounted: lazy.remove.bind(lazy),
     })
     app.directive('lazy-container', {
@@ -43,5 +42,3 @@ export default {
     })
   },
 }
-
-export { Lazy, LazyComponent, LazyImage, LazyContainer }
