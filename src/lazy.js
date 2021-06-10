@@ -151,9 +151,8 @@ export default function Lazy() {
         }
 
         const newListener = new ReactiveListener({
-          bindType: binding.arg,
-          $parent,
           el,
+          $parent,
           src,
           loading: value.loading,
           error: value.error,
@@ -469,8 +468,10 @@ export default function Lazy() {
 
       // value is object
       if (isObject(value)) {
-        if (!value.src && !this.options.silent)
+        if (!value.src && !this.options.silent) {
           console.error('Vue Lazyload warning: miss src with ' + value)
+        }
+
         src = value.src
         loading = value.loading || this.options.loading
         error = value.error || this.options.error
@@ -482,15 +483,4 @@ export default function Lazy() {
       }
     }
   }
-}
-
-Lazy.install = (app, options = {}) => {
-  const LazyClass = Lazy()
-  const lazy = new LazyClass(options)
-
-  app.directive('lazy', {
-    beforeMount: lazy.add.bind(lazy),
-    updated: lazy.lazyLoadHandler.bind(lazy),
-    unmounted: lazy.remove.bind(lazy),
-  })
 }

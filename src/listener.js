@@ -6,7 +6,6 @@ export default class ReactiveListener {
     src,
     error,
     loading,
-    bindType,
     $parent,
     options,
     cors,
@@ -17,7 +16,6 @@ export default class ReactiveListener {
     this.src = src
     this.error = error
     this.loading = loading
-    this.bindType = bindType
     this.attempt = 0
     this.cors = cors
 
@@ -140,10 +138,11 @@ export default class ReactiveListener {
         // handler `loading image` load failed
         cb()
         this.state.loading = false
-        if (!this.options.silent)
+        if (!this.options.silent) {
           console.warn(
             `VueLazyload log: load failed with loading image(${this.loading})`,
           )
+        }
       },
     )
   }
@@ -154,14 +153,19 @@ export default class ReactiveListener {
    */
   load(onFinish = noop) {
     if (this.attempt > this.options.attempt - 1 && this.state.error) {
-      if (!this.options.silent)
+      if (!this.options.silent) {
         console.log(
           `VueLazyload log: ${this.src} tried too more than ${this.options.attempt} times`,
         )
+      }
+
       onFinish()
       return
     }
-    if (this.state.rendered && this.state.loaded) return
+    if (this.state.rendered && this.state.loaded) {
+      return
+    }
+
     if (this._imageCache.has(this.src)) {
       this.state.loaded = true
       this.render('loaded', true)
@@ -244,7 +248,6 @@ export default class ReactiveListener {
     this.src = null
     this.error = null
     this.loading = null
-    this.bindType = null
     this.attempt = 0
   }
 }

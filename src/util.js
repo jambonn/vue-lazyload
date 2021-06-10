@@ -142,6 +142,8 @@ function supportWebp() {
 function throttle(action, delay) {
   let timeout = null
   let lastRun = 0
+  let movement = null
+  let needRun = false
   return function (...args) {
     if (timeout) {
       return
@@ -157,6 +159,11 @@ function throttle(action, delay) {
       runCallback()
     } else {
       timeout = setTimeout(runCallback, delay)
+    }
+
+    if (needRun) {
+      clearTimeout(movement)
+      movement = setTimeout(runCallback, 2 * delay)
     }
   }
 }
