@@ -157,6 +157,7 @@ export default function Lazy() {
           loading: value.loading,
           error: value.error,
           cors: value.cors,
+          bindType: binding.arg,
           elRenderer: this._elRenderer.bind(this),
           options: this.options,
           imageCache: this._imageCache,

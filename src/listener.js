@@ -6,6 +6,7 @@ export default class ReactiveListener {
     src,
     error,
     loading,
+    bindType,
     $parent,
     options,
     cors,
@@ -16,6 +17,7 @@ export default class ReactiveListener {
     this.src = src
     this.error = error
     this.loading = loading
+    this.bindType = bindType
     this.attempt = 0
     this.cors = cors
 
@@ -248,6 +250,7 @@ export default class ReactiveListener {
     this.src = null
     this.error = null
     this.loading = null
+    this.bindType = null
     this.attempt = 0
   }
 }
