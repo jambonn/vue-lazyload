@@ -9,7 +9,6 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
     "release": "node scripts/release.js"
   },
