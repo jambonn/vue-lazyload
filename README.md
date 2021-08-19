@@ -8,7 +8,6 @@ Vue module for lazyloading images in your Vue 3 applications. This module is bas
 
 # Table of Contents
 
-* [___Demo___](#demo)
 * [___Requirements___](#requirements)
 * [___Installation___](#installation)
 * [___Usage___](#usage)
@@ -22,10 +21,6 @@ Vue module for lazyloading images in your Vue 3 applications. This module is bas
     * [__Performance__](#performance)
 * [___Authors && Contributors___](#authors-&&-Contributors)
 * [___License___](#license)
-
-# Demo
-
-[___Demo___](http://hilongjw.github.io/vue-lazyload/)
 
 # Requirements
 
