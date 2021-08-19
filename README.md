@@ -24,7 +24,7 @@ Vue module for lazyloading images in your Vue 3 applications. This module is bas
 
 # Requirements
 
-- [Vue.js](**https://github.com/vuejs/vue-next**) `3.x`
+- [Vue.js](https://github.com/vuejs/vue-next) `3.x`
 
 # Installation
 
