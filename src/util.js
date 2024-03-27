@@ -64,7 +64,7 @@ function getBestSelectionFromSrcset(el, scale) {
   let tmpSrc
   let tmpWidth
 
-  options = options.trim().split(',')
+  options = options.trim().split(/(?<=\d+w),/)
 
   const result = options.map(item => {
     item = item.trim()
